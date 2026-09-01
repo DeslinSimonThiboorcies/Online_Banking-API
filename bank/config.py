@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv() # Load environment variables from .env file
+load_dotenv()
 
 class Config:
 
@@ -15,3 +15,11 @@ class Config:
 
     SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+class TestClass:
+
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = "sqlite:///memory.db"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = "test_secret_key"
+    JWT_SECRET_KEY = "test-jwt-secret-key-with-more-length-for-security-32bytes"

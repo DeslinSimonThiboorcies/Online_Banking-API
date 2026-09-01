@@ -31,15 +31,3 @@ class AdminRepository:
     def delete_admin(admin):
         db.session.delete(admin)
         db.session.commit()
-
-
-# from bank.services.validators.staff_contact_validator import StaffContactValidator
-
-# class AdminRegisterService:
-#     @staticmethod
-#     def register(data):
-#         StaffContactValidator.assert_phone_and_email_available(
-#             phone_number=data['phone_number'],
-#             email=data['email'],
-#         )
-#         # ... proceed to create the Admin row
