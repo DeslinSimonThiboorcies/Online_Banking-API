@@ -1,7 +1,6 @@
-import enum
 from bank.extensions.db import db
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timezone
 
 class Customer(db.Model):
     __tablename__ = 'customers'
@@ -15,7 +14,7 @@ class Customer(db.Model):
         nullable=False,
     )
     phone_number = db.Column(
-        db.String(20),
+        db.Integer,
         unique=True,
         nullable=True,
     )
@@ -50,10 +49,9 @@ class Customer(db.Model):
         nullable=False,
     )
     kyc_status = db.Column(
-            db.String,
-            enum('pending', 'approved', 'rejected', name='kyc_status_enum'),
-            default='pending',
-            nullable=False,
+        db.Enum('pending', 'approved', 'rejected', name='kyc_status_enum'),
+        default='pending',
+        nullable=False,
     )
     username = db.Column(
         db.String(80),
@@ -71,12 +69,14 @@ class Customer(db.Model):
     )
     created_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
     )
     login_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False,
     )
     def customer_password(self, password):
         self.password = generate_password_hash(password)

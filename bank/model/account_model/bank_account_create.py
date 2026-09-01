@@ -101,7 +101,7 @@ class BankAccount(db.Model):
     MAX_GENERATION_ATTEMPTS = 5
 
     @classmethod
-    def _generate_account_number(cls) -> str:
+    def _generate_account_number(cls):
         return ''.join(secrets.choice('0123456789') for _ in range(cls.ACCOUNT_NUMBER_LENGTH))
 
     @classmethod
@@ -143,7 +143,7 @@ class BankAccount(db.Model):
             f'{cls.MAX_GENERATION_ATTEMPTS} attempts.'
         ) from last_error
 
-    def to_dict(self) -> dict:
+    def to_dict(self):
         return {
             'id': self.id,
             'account_number': self.account_number,

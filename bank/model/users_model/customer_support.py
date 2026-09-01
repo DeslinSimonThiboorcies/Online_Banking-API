@@ -1,6 +1,6 @@
 from bank.extensions.db import db
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CustomerSupport(db.Model):
     __tablename__ = 'customer_support'
@@ -14,7 +14,7 @@ class CustomerSupport(db.Model):
         nullable=False,
     )
     phone_number = db.Column(
-        db.String(20),
+        db.Integer,
         unique=True,
         nullable=True,
     )
@@ -63,12 +63,14 @@ class CustomerSupport(db.Model):
     )
     created_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
     )
     login_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False,
     )
 
     def customer_support_password(self, password):
