@@ -9,17 +9,11 @@ def employee_admin_required(func):
     def decorator(*args, **kwargs):
 
         emloyee_id = int(get_jwt_identity())
-        employee = EmployeeRepository.get_employee_by_id(emloyee_id)
+        current_employee = EmployeeRepository.get_employee_by_id(emloyee_id)
 
-        if not employee:
+        if not current_employee or current_employee.role not in ["admin", "manager"]:
             return jsonify({
-                "MESSAGE": "Invalid or expired session"
-            }), 401
-
-
-        if employee.role not in ["admin", "manager"]:
-            return jsonify({
-                "MESSAGE": "ACCESS DENIED CONTACT ADMIN OR MANAGER"
+                "message": "Admin or Manager access required"
             }), 403
 
         return func(*args, **kwargs)

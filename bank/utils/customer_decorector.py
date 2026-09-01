@@ -10,16 +10,11 @@ def customer_admin_required(func):
     def decorator(*args, **kwargs):
 
         customer_id = int(get_jwt_identity())
-        customer = CustomerRepository.get_customer_by_id(customer_id)
+        current_customer = CustomerRepository.get_customer_by_id(customer_id)
 
-        if not customer:
+        if not current_customer or current_customer.role not in ["admin", "manager", "customer_service"]:
             return jsonify({
-                "MESSAGE": "Invalid or expired session"
-            }), 401
-
-        if customer.role not in ["admin", "manager", "customer_support"]:
-            return jsonify({
-                "MESSAGE": "ACCESS DENIED CONTACT ADMIN OR Manager  "
+                "message": "Admin, Manager or Customer Service access required"
             }), 403
 
         return func(*args, **kwargs)

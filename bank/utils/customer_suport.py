@@ -11,14 +11,9 @@ def admin_required(func):
         customer_suport_id = int(get_jwt_identity())
         customer_suport = CustomerSupportRepository.get_customer_support_by_id(customer_suport_id)
 
-        if not customer_suport:
+        if not customer_suport or customer_suport.role not in ["admin", "manager"]:
             return jsonify({
-                "MESSAGE": "Invalid or expired session"
-            }), 401
-
-        if customer_suport.role not in ["admin", "manager"]:
-            return jsonify({
-                "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
+                "message": "Admin or Manager access required"
             }), 403
 
         return func(*args, **kwargs)
