@@ -6,6 +6,7 @@ from bank.extensions.jwt import jwt
 app = Flask(__name__)
 
 def creat_app():
+    app = Flask(__name__)
 
     app.config.from_object(Config)
     db.init_app(app)
