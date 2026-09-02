@@ -160,7 +160,7 @@ def update(id):
 #Delete profiles
 @c_s_bp.route("/user/delete/my_profile/<int:id>", methods = ["PUT"])
 @jwt_required()
-def update(id):
+def delete_profile(id):
 
     customer_helper_id = int(get_jwt_identity())
     customer_suport = CustomerSupportServices.view_user(customer_helper_id)

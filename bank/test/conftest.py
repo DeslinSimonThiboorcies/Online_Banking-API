@@ -1,8 +1,8 @@
 import pytest
 
 from bank import creat_app
+from bank.config import TestClass
 from bank.extensions.db import db as _db
-from config import TestClass
 from bank.model.users_model.admin import Admin
 from bank.model.users_model.manager import Manager
 from bank.model.users_model.customer_support import CustomerSupport

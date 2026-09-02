@@ -40,11 +40,11 @@ class Manager(db.Model):
         nullable = False
     )
     zip_code = db.Column(
-        db.String(20),
+        db.Integer,
         nullable=True,
     )
     role = db.Column(
-        db.String,
+        db.String(20),
         default='manager',
         nullable=False,
     )

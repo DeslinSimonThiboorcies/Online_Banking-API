@@ -40,11 +40,11 @@ class Customer(db.Model):
         nullable=True,
     )
     zip_code = db.Column(
-        db.String(20),
+        db.Integer,
         nullable=True,
     )
     role = db.Column(
-        db.String,
+        db.String(20),
         default='customer',
         nullable=False,
     )

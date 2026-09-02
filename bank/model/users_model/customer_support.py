@@ -40,11 +40,11 @@ class CustomerSupport(db.Model):
         nullable=True,
     )
     zip_code = db.Column(
-        db.String(20),
+        db.Integer,
         nullable=True,
     )
     role = db.Column(
-        db.String,
+        db.String(20),
         default='customer_support',
         nullable=False,
     )

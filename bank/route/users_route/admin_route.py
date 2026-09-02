@@ -1,19 +1,14 @@
 from flask import Blueprint, request, jsonify
 from bank.services.user_services.admin_services.admin_services import AdminServices
 from bank.services.user_services.admin_services.admin_login_services import AdminRegisterService
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from flask_jwt_extended import jwt_required
+from bank.utils.admin_decorator import require_admin_
 
 
 admin_bp = Blueprint(
     "admin",
     __name__
 )
-
-def require_admin_():
-
-    claims = get_jwt()
-    return claims.get("role") == "admin"
-
 #REGISTATION
 @admin_bp.route("/admin/register", methods=["POST"])
 def register():
@@ -61,35 +56,37 @@ def login():
 
 #GET / PROFILE
 @admin_bp.route("/admin/profile", methods=["GET"])
+@require_admin_()
 @jwt_required()
 def profile():
 
-    if not require_admin_():
-        return jsonify({
-            "message" : "Access denied!"
-        }), 403
-
-    admin_id = get_jwt_identity()
-    admin = AdminServices.view_admin(admin_id)
+    admin = AdminServices.view_admin()
     if not admin:
         return jsonify({
             "message": "Admin not found!"
         }), 404
 
+    response = []
+
+    for admin_ in admin:
+        response.append({
+            "id": admin_.id,
+            "full_name": admin_.full_name,
+            "phone_number": admin_.phone_number,
+            "email": admin_.email,
+            "date_of_birth": admin_.date_of_birth,
+            "username": admin_.username,
+            "role": admin_.role,
+            "address": admin_.address,
+            "state": admin_.state,
+            "country": admin_.country,
+            "zip_code": admin_.zip_code,
+            "created_at": admin_.created_at,
+            "login_at": admin_.login_at
+        })
+
     return jsonify({
-        "id": admin.id,
-        "full_name": admin.full_name,
-        "phone_number": admin.phone_number,
-        "email": admin.email,
-        "date_of_birth": admin.date_of_birth,
-        "username": admin.username,
-        "role": admin.role,
-        "address": admin.address,
-        "state": admin.state,
-        "country": admin.country,
-        "zip_code": admin.zip_code,
-        "created_at": admin.created_at,
-        "login_at": admin.login_at,
+        "Message" : response
     }), 200
 
 #UPDATE

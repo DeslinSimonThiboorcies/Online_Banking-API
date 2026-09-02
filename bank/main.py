@@ -3,8 +3,6 @@ from bank.config import Config
 from bank.extensions.db import db
 from bank.extensions.jwt import jwt
 
-app = Flask(__name__)
-
 def creat_app():
     app = Flask(__name__)
 

@@ -162,7 +162,7 @@ def update(id):
 #Delete profiles
 @customer_bp.route("/customer/delete/my_profile/<int:id>", methods = ["PUT"])
 @jwt_required()
-def update(id):
+def delete_profile(id):
 
     customer_id = int(get_jwt_identity())
     customer = CustomerServices.view_user(customer_id)
@@ -175,8 +175,6 @@ def update(id):
         return jsonify({
             "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
         }), 403
-
-    data = request.get_json(silent= True)
 
     try:
         CustomerServices.delete(customer)
