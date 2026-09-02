@@ -55,6 +55,7 @@ def login():
         }), 401
 
     return jsonify({
+        "message": "Login successful!",
         "Bearer" : token
     }), 200
 
