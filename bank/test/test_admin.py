@@ -198,11 +198,7 @@ class TestUpdateAdmin:
         db
     ):
         admin, token = admin_token
-        target = create_admin(
-            username = "targetuser",
-            email = "target@gmail.com",
-            phone_number = 1234567893
-        )
+        target = create_admin(username = "targetuser")
 
         response = client.put(
             update_admin_url(target.id),

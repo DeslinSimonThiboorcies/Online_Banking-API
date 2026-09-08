@@ -85,9 +85,14 @@ def profile():
 
 #UPDATE
 @admin_bp.route("/admin/update/<int:admin_id>", methods=["PUT"])
-@jwt_required()
 @require_admin_()
 def update_profile(admin_id):
+
+    caller_id = int(get_jwt_identity())
+    if caller_id != admin_id:
+        return jsonify({
+            "message": "You can only update your own profile."
+        }), 403
 
     admin = AdminServices.view_admin(admin_id)
     if not admin:
@@ -106,12 +111,13 @@ def update_profile(admin_id):
 
     except ValueError as e:
         return jsonify({
-            "message" : str(e)
+            "message": str(e)
         }), 400
 
     return jsonify({
         "message": "Admin updated successfully!"
     }), 200
+
 
 #DELETE
 @admin_bp.route("/admin/delete/<int:admin_id>", methods=["DELETE"])

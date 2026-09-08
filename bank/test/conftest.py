@@ -1,4 +1,5 @@
 import pytest
+import uuid
 
 from bank import creat_app
 from bank.config import TestClass
@@ -32,19 +33,23 @@ def db(app):
 @pytest.fixture
 def create_admin(db):
     def register_admin(
-            
-    full_name = "test admin",
-    phone_number = int(1234567890),
-    email = "test@gmail.com",
-    date_of_birth = "1990-01-01",
-    username = "test_admin00192",
-    role = "admin",
-    address = "near park golden st.1/23",
-    state = "new york",
-    country = "usa",
-    zip_code = int(10001),
-    password = "test_password"
+        full_name="test admin",
+        phone_number=None,
+        email=None,
+        date_of_birth="1990-01-01",
+        username=None,
+        role="admin",
+        address="near park golden st.1/23",
+        state="new york",
+        country="usa",
+        zip_code=int(10001),
+        password="test_password"
     ):
+        unique = uuid.uuid4().hex[:8]
+        email = email or f"admin_{unique}@gmail.com"
+        username = username or f"test_admin_{unique}"
+        phone_number = phone_number or int(f"1{uuid.uuid4().int % 1_000_000_000:09d}")
+
         admin = Admin(
             full_name=full_name,
             phone_number=phone_number,
