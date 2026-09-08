@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from bank.services.user_services.admin_services.admin_services import AdminServices
 from bank.services.user_services.admin_services.admin_login_services import AdminRegisterService
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from bank.utils.admin_decorator import require_admin_
 
 
@@ -57,47 +57,36 @@ def login():
 #GET / PROFILE
 @admin_bp.route("/admin/profile", methods=["GET"])
 @require_admin_()
-@jwt_required()
 def profile():
 
-    admin = AdminServices.view_admin()
+    admin_id = int(get_jwt_identity())
+    admin = AdminServices.view_admin(admin_id)
     if not admin:
         return jsonify({
             "message": "Admin not found!"
         }), 404
 
-    response = []
-
-    for admin_ in admin:
-        response.append({
-            "id": admin_.id,
-            "full_name": admin_.full_name,
-            "phone_number": admin_.phone_number,
-            "email": admin_.email,
-            "date_of_birth": admin_.date_of_birth,
-            "username": admin_.username,
-            "role": admin_.role,
-            "address": admin_.address,
-            "state": admin_.state,
-            "country": admin_.country,
-            "zip_code": admin_.zip_code,
-            "created_at": admin_.created_at,
-            "login_at": admin_.login_at
-        })
-
     return jsonify({
-        "Message" : response
+        "id": admin.id,
+        "full_name": admin.full_name,
+        "phone_number": admin.phone_number,
+        "email": admin.email,
+        "date_of_birth": admin.date_of_birth,
+        "username": admin.username,
+        "role": admin.role,
+        "address": admin.address,
+        "state": admin.state,
+        "country": admin.country,
+        "zip_code": admin.zip_code,
+        "created_at": admin.created_at,
+        "login_at": admin.login_at
     }), 200
 
 #UPDATE
 @admin_bp.route("/admin/update/<int:admin_id>", methods=["PUT"])
 @jwt_required()
+@require_admin_()
 def update_profile(admin_id):
-
-    if not require_admin_():
-        return jsonify({
-            "message" : "Access denied!"
-        }), 403
 
     admin = AdminServices.view_admin(admin_id)
     if not admin:
@@ -109,7 +98,7 @@ def update_profile(admin_id):
     if not data:
         return jsonify({
             "message": "Request body must be JSON."
-        })
+        }), 400
 
     try:
         AdminServices.update(admin, data)
@@ -129,6 +118,7 @@ def update_profile(admin_id):
 def remove_admin(admin_id):
 
     admin = AdminServices.view_admin(admin_id)
+
     if not admin:
         return jsonify({
             "message": "Request body must be JSON."
@@ -137,4 +127,4 @@ def remove_admin(admin_id):
     AdminServices.delete(admin)
     return jsonify({
         "message": "Admin deleted successfully!"
-    })
+    }), 200

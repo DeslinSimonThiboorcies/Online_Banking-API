@@ -208,7 +208,8 @@ def admin_token(
     admin = create_admin()
     with app.app_context():
         access_token = create_access_token(
-            identity=admin.id
+            identity=str(admin.id),
+            additional_claims={"role" : admin.role}
         )
     return admin, access_token
 
