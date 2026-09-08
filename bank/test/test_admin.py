@@ -198,7 +198,11 @@ class TestUpdateAdmin:
         db
     ):
         admin, token = admin_token
-        target = create_admin(username = "targetuser")
+        target = create_admin(
+            username = "targetuser",
+            email = "traget@gmail.com",
+            phone_number = 1234567893
+        )
 
         response = client.put(
             update_admin_url(target.id),
@@ -206,12 +210,10 @@ class TestUpdateAdmin:
             headers=auth_headers(token)
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 403
 
         db.session.refresh(target)
-        db.session.refresh(admin)
-        assert target.full_name == "Updated by Admin"
-        assert admin.full_name != "Updated by Admin"
+        assert target.full_name == "test admin"
 
     def test_update_admin_not_found(
         self,
