@@ -21,7 +21,7 @@ class AdminServices:
         admin.zip_code = data.get("zip_code", admin.zip_code)
 
 
-        AdminRepository.update_admin(admin)
+        AdminRepository.update_admin()
         return admin
 
     @staticmethod

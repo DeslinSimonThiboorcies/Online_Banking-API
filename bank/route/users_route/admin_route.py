@@ -67,6 +67,7 @@ def profile():
         }), 404
 
     return jsonify({
+        "message" : "Sucessfull",
         "id": admin.id,
         "full_name": admin.full_name,
         "phone_number": admin.phone_number,

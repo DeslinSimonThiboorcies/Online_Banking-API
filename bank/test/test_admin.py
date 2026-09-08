@@ -154,7 +154,7 @@ class TestAdminProfile:
             headers=auth_headers(token)
         )
         assert response.status_code == 200
-        assert response.get_json()["Message"]
+        assert response.get_json()["message"]
 
 
 class TestUpdateAdmin:
@@ -172,7 +172,7 @@ class TestUpdateAdmin:
             headers=auth_headers(token)
         )
         assert response.status_code == 200
-        assert response.get_json()["message"] == "Admin updated successfully"
+        assert response.get_json()["message"] == "Admin updated successfully!"
 
     def test_update_role_access(
         self,
