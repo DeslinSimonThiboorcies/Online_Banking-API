@@ -88,17 +88,17 @@ def profile():
 @require_admin_()
 def update_profile(admin_id):
 
-    caller_id = int(get_jwt_identity())
-    if caller_id != admin_id:
-        return jsonify({
-            "message": "You can only update your own profile."
-        }), 403
-
     admin = AdminServices.view_admin(admin_id)
     if not admin:
         return jsonify({
             "message": "Admin not found!"
         }), 404
+
+    caller_id = int(get_jwt_identity())
+    if caller_id != admin_id:
+        return jsonify({
+            "message": "You can only update your own profile."
+        }), 403
 
     data = request.get_json(silent=True)
     if not data:
@@ -118,18 +118,22 @@ def update_profile(admin_id):
         "message": "Admin updated successfully!"
     }), 200
 
-
 #DELETE
 @admin_bp.route("/admin/delete/<int:admin_id>", methods=["DELETE"])
-@jwt_required()
+@require_admin_()
 def remove_admin(admin_id):
 
     admin = AdminServices.view_admin(admin_id)
-
     if not admin:
         return jsonify({
-            "message": "Request body must be JSON."
+            "message": "Admin not found!"
         }), 404
+
+    caller_id = int(get_jwt_identity())
+    if caller_id != admin_id:
+        return jsonify({
+            "message": "You can only delete your own account."
+        }), 403
 
     AdminServices.delete(admin)
     return jsonify({
