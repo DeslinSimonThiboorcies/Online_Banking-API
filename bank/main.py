@@ -3,10 +3,10 @@ from bank.config import Config
 from bank.extensions.db import db
 from bank.extensions.jwt import jwt
 
-def creat_app():
+def creat_app(config_class = Config):
     app = Flask(__name__)
 
-    app.config.from_object(Config)
+    app.config.from_object(config_class)
     db.init_app(app)
     jwt.init_app(app)
 

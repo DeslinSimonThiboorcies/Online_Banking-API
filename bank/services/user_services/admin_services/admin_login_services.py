@@ -1,3 +1,4 @@
+from datetime import datetime
 from bank.model.users_model.admin import Admin
 from bank.repository.user_repository.admin_repo import AdminRepository
 from flask_jwt_extended import create_access_token
@@ -24,6 +25,11 @@ class AdminRegisterService:
             raise ValueError(
                 "ADMIN ALREADY EXIST"
             )
+
+        try:
+            date_of_birth = datetime.strptime(date_of_birth, "%Y-%m-%d").date()
+        except (TypeError, ValueError):
+            raise ValueError("date_of_birth must be in YYYY-MM-DD format")
 
         admin = Admin(
             full_name=full_name,

@@ -1,6 +1,7 @@
 import pytest
 import uuid
 
+from datetime import datetime
 from bank import creat_app
 from bank.config import TestClass
 from bank.extensions.db import db as _db
@@ -14,8 +15,7 @@ from flask_jwt_extended import create_access_token
 
 @pytest.fixture
 def app():
-    app = creat_app()
-    app.config.from_object(TestClass)
+    app = creat_app(TestClass)
     with app.app_context():
         _db.create_all()
         yield app
@@ -54,7 +54,7 @@ def create_admin(db):
             full_name=full_name,
             phone_number=phone_number,
             email=email,
-            date_of_birth=date_of_birth,
+            date_of_birth=datetime.strptime(date_of_birth, "%Y-%m-%d").date(),
             username=username,
             role=role,
             address=address,
