@@ -27,6 +27,16 @@ class Manager(db.Model):
         db.Date,
         nullable=True,
     )
+    username = db.Column(
+        db.String(80),
+        unique=True,
+        nullable=False,
+    )
+    role = db.Column(
+        db.String(20),
+        default='manager',
+        nullable=False,
+    )    
     address = db.Column(
         db.Text,
         nullable=True,
@@ -42,16 +52,6 @@ class Manager(db.Model):
     zip_code = db.Column(
         db.Integer,
         nullable=True,
-    )
-    role = db.Column(
-        db.String(20),
-        default='manager',
-        nullable=False,
-    )
-    username = db.Column(
-        db.String(80),
-        unique=True,
-        nullable=False,
     )
     password = db.Column(
         db.String(225),

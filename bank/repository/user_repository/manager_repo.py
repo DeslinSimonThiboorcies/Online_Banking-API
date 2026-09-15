@@ -16,15 +16,16 @@ class ManagerRepository:
         ).first()
 
     @staticmethod
-    def get_manager():
-        return Manager.query.all()
-
-    @staticmethod
     def get_manager_by_id(manager_id):
+
         return db.session.get(
             Manager,
             manager_id
         )
+
+    @staticmethod
+    def get_manager():
+        return Manager.query.all()
 
     @staticmethod
     def update_manager():

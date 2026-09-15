@@ -68,5 +68,4 @@ class AdminRegisterService:
             identity=str(admin.id),
             additional_claims={"role" : admin.role}
         )
-
         return token

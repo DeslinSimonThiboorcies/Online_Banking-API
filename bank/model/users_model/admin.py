@@ -70,7 +70,6 @@ class Admin(db.Model):
         nullable=False,
     )
     
-
     def admin_password(self, password):
         self.password = generate_password_hash(password)
 
