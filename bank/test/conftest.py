@@ -73,10 +73,10 @@ def create_manager(db):
     def register_manager(
             
     full_name = "test manager",
-    phone_number = int("1234567890"),
-    email = "test_manager@gmail.com",
+    phone_number = None,
+    email = None,
     date_of_birth = "1990-01-01",
-    username = "test_manager00192",
+    username = None,
     role = "manager",
     address = "near park golden st.1/23",
     state = "new york",
@@ -84,11 +84,17 @@ def create_manager(db):
     zip_code = int(10001),
     password = "test_password"
     ):
+
+        unique = uuid.uuid4().hex[:8]
+        email = email or f"manager_{unique}@gmail.com"
+        username = username or f"test_manager_{unique}"
+        phone_number = phone_number or int(f"1{uuid.uuid4().int % 1_000_000_000:09d}")        
+        
         manager = Manager(
             full_name=full_name,
             phone_number=phone_number,
             email=email,
-            date_of_birth=date_of_birth,
+            date_of_birth=datetime.strptime(date_of_birth, "%Y-%m-%d").date(),
             username=username,
             role=role,
             address=address,
@@ -227,7 +233,8 @@ def manager_token(
     manager = create_manager()
     with app.app_context():
         access_token = create_access_token(
-            identity=manager.id
+            identity=str(manager.id),
+            additional_claims={"role" : manager.role}
         )
     return manager, access_token
 

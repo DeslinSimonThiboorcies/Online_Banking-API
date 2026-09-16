@@ -122,9 +122,7 @@ class TestManagerLogin:
 
         assert response.status_code == 401
 
-
 class TestManagerProfile:
-
     def test_manager_profile(
         self, 
         client
@@ -140,33 +138,31 @@ class TestManagerProfile:
 
         manager, token = manager_token
         response = client.get(
-            VIEW_MANAGERS,
+            view_manager_url(manager.id),
             headers=auth_headers(token)
         )
         assert response.status_code == 200
 
-    def test_admin_allowed(
+    def test_admin_allowed_(
         self, 
         app, 
         client, 
         admin_token, 
-        create_admin
+        create_manager
         ):
 
         admin, token = admin_token
-        other_admin = create_admin(
-            username="other_admin_user",
-            email="other_admin@gmail.com",
+        target_manager = create_manager(
+            username="target_manager_user",
+            email="target_manager@gmail.com",
             phone_number=1234567891,
-            password="newpassword123"
         )
         response = client.get(
-            VIEW_MANAGERS,
+            view_manager_url(target_manager.id),
             headers=auth_headers(token)
         )
         assert response.status_code == 200
-        assert response.get_json()["message"]
-
+        assert response.get_json()["Message"]
 
 class TestUpdateAdmin:
 
@@ -224,7 +220,7 @@ class TestUpdateAdmin:
         assert response.status_code == 403
 
         db.session.refresh(target)
-        assert target.full_name == "test Manager"
+        assert target.full_name == "test manager"
 
     def test_update_manager_not_found(
         self,

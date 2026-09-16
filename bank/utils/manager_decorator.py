@@ -1,20 +1,29 @@
-from flask_jwt_extended import get_jwt_identity
 from functools import wraps
 from flask import jsonify
-from bank.repository.user_repository.manager_repo import ManagerRepository
+from flask_jwt_extended import jwt_required, get_jwt
 
-def manager_admin_required(func):
 
-    @wraps(func)
-    def decorator(*args, **kwargs):
+def require_manager_():
+    def decorator(fn):
+        @wraps(fn)
+        @jwt_required()
+        def wrapper(*args, **kwargs):
+            claims = get_jwt()
+            if claims.get("role") != "manager":
+                return jsonify({"message": "Managers only!"}), 403
+            return fn(*args, **kwargs)
+        return wrapper
+    return decorator
 
-        manager_id = int(get_jwt_identity())
-        current_manager = ManagerRepository.get_manager_by_id(manager_id)
 
-        if not current_manager or current_manager.role != 'admin':
-            return jsonify({
-                "message": "Admin access required"
-            }), 403
-
-        return func(*args, **kwargs)
+def require_system_admin_():
+    def decorator(fn):
+        @wraps(fn)
+        @jwt_required()
+        def wrapper(*args, **kwargs):
+            claims = get_jwt()
+            if claims.get("role") != "admin":
+                return jsonify({"message": "Admin access required"}), 403
+            return fn(*args, **kwargs)
+        return wrapper
     return decorator

@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
 from bank.services.user_services.manager.manager_login_services import ManagerRegisterServices
 from bank.services.user_services.manager.manager_services import MangerService
-from bank.utils.manager_decorator import manager_admin_required
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from bank.utils.manager_decorator import require_system_admin_
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 manager_bp = Blueprint(
     "manager",
@@ -56,8 +56,7 @@ def login():
 
 #GET
 @manager_bp.route("/manager/profiles", methods = ["GET"])
-@manager_admin_required
-@jwt_required()
+@require_system_admin_()
 def profiles():
 
     managers = MangerService.view_managers()
@@ -66,65 +65,68 @@ def profiles():
             "message" : "Manager not found!"
         }), 404
 
-    respons = []
-
+    response = []
     for manager in managers:
-        respons.append({
-        "id": manager.id,
-        "full_name": manager.full_name,
-        "phone_number": manager.phone_number,
-        "email": manager.email,
-        "date_of_birth": manager.date_of_birth,
-        "address": manager.address,
-        "state": manager.state,
-        "country": manager.country,
-        "zip_code": manager.zip_code,
-        "role": manager.role,
-        "username": manager.username,
-        "created_at": manager.created_at,
-        "login_at": manager.login_at            
+        response.append({
+            "id": manager.id,
+            "full_name": manager.full_name,
+            "phone_number": manager.phone_number,
+            "email": manager.email,
+            "date_of_birth": manager.date_of_birth,
+            "address": manager.address,
+            "state": manager.state,
+            "country": manager.country,
+            "zip_code": manager.zip_code,
+            "role": manager.role,
+            "username": manager.username,
+            "created_at": manager.created_at,
+            "login_at": manager.login_at            
         })
-
-    return jsonify({
-        "message" : respons
-    }), 201
+        return jsonify({
+        "Message" : "Successfull!",
+        "Note" : response
+    }), 200
 
 #PROFILE 
 @manager_bp.route("/manager/profile/<int:id>", methods = ["GET"])
 @jwt_required()
 def profile(id):
 
+    manager = get_jwt()
+    manager_role = manager.get("role")
     manager_id = int(get_jwt_identity())
-    manager = MangerService.view_manager(manager_id)
-    if not manager:
-        return jsonify({
-            "Message" : "Manager not found!"
-        }), 404
 
-    if manager.role != "admin" and manager.id != id:
+    if manager_role != "admin" and manager_id != id:
         return jsonify({
             "Message" : "Access Denied!"
         }), 403
 
+    managers = MangerService.view_manager(id)
+    if not managers:
+        return jsonify({
+            "Message" : "Manager not found!"
+        }), 404
+
     response = {
-        "id": manager.id,
-        "full_name": manager.full_name,
-        "phone_number": manager.phone_number,
-        "email": manager.email,
-        "date_of_birth": manager.date_of_birth,
-        "address": manager.address,
-        "state": manager.state,
-        "country": manager.country,
-        "zip_code": manager.zip_code,
-        "role": manager.role,
-        "username": manager.username,
-        "created_at": manager.created_at,
-        "login_at": manager.login_at            
+        "id": managers.id,
+        "full_name": managers.full_name,
+        "phone_number": managers.phone_number,
+        "email": managers.email,
+        "date_of_birth": managers.date_of_birth,
+        "address": managers.address,
+        "state": managers.state,
+        "country": managers.country,
+        "zip_code": managers.zip_code,
+        "role": managers.role,
+        "username": managers.username,
+        "created_at": managers.created_at,
+        "login_at": managers.login_at            
     }
 
     return jsonify({
+        "Note" : "Success",
         "Message" : response
-    }), 201
+    }), 200
 
 @manager_bp.route("/manager/update/<int:id>", methods = ["PUT"])
 @jwt_required()
