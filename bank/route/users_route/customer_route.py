@@ -55,8 +55,8 @@ def login():
 
 #View all profiles
 @customer_bp.route("/customer/profile", methods = ["GET"])
-@customer_admin_required
 @jwt_required()
+@customer_admin_required
 def all_profile():
 
     customer = CustomerServices.view_all_user()
@@ -66,7 +66,7 @@ def all_profile():
         }), 404
 
     response = []
-    for customers in customer_bp:
+    for customers in customer:
         response.append({
         "id": customers.id,
         "full_name": customers.full_name,
@@ -78,9 +78,9 @@ def all_profile():
         "country": customers.country,
         "zip_code": customers.zip_code,        
         "role": customers.role,
-        "kyc_status" : customer.kyc_status,
+        "kyc_status" : customers.kyc_status,
         "username": customers.username,
-        "is_activate" : customer.is_activate,
+        "is_active" : customers.is_active,
         "created_at": customers.created_at,
         "login_at": customers.login_at           
         })
@@ -106,6 +106,12 @@ def profile(id):
             "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
         }), 403
 
+    target_customer = CustomerServices.view_user(id)
+    if not target_customer:
+        return jsonify({
+            "Message": "Customer not found!"
+        }), 404
+
     response = {
         "id": customer.id,
         "full_name": customer.full_name,
@@ -119,7 +125,7 @@ def profile(id):
         "role": customer.role,
         "kyc_status" : customer.kyc_status,
         "username": customer.username,
-        "is_activate" : customer.is_activate,
+        "is_active" : customer.is_active,
         "created_at": customer.created_at,
         "login_at": customer.login_at
     }       
@@ -140,6 +146,12 @@ def update(id):
             "Messge" : "User not found!"            
         }), 404
 
+    target_customer = CustomerServices.view_user(id)
+    if not target_customer:
+        return jsonify({
+            "Message": "Customer not found!"
+        }), 404
+
     if customer.role not in ["admin", "manager", "customer_support"] and customer.id != id:
         return jsonify({
             "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
@@ -148,7 +160,7 @@ def update(id):
     data = request.get_json(silent= True)
 
     try:
-        CustomerServices.update(customer, data)
+        CustomerServices.update(target_customer, data)
 
     except ValueError as e:
         return jsonify({
@@ -171,13 +183,19 @@ def delete_profile(id):
             "Messge" : "User not found!"            
         }), 404
 
+    target_customer = CustomerServices.view_user(id)
+    if not target_customer:
+        return jsonify({
+            "Message": "Customer not found!"
+        }), 404
+
     if customer.role not in ["admin", "manager", "customer_support"] and customer.id != id:
         return jsonify({
             "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
         }), 403
 
     try:
-        CustomerServices.delete(customer)
+        CustomerServices.delete(target_customer)
 
     except ValueError as e:
         return jsonify({

@@ -193,10 +193,10 @@ def create_customer(db):
     def register_customer(
 
     full_name = "test customer",
-    phone_number = int(1234567890),
-    email = "test_customer@gmail.com",
+    phone_number = None,
+    email = None,
     date_of_birth = "1990-01-01",
-    username = "test_customer00192",
+    username = None,
     role = "customer",
     address = "near park golden st.1/23",
     state = "new york",
@@ -204,6 +204,14 @@ def create_customer(db):
     zip_code = int(10001),
     password = "test_password"
     ):
+        unique = uuid.uuid4().hex[:8]
+        phone_number = phone_number or int(f"1{uuid.uuid4().int % 1_000_000_000:09d}")
+        email = email or f"customer_{unique}@gmail.com"
+        username = username or f"test_customer_{unique}"
+
+        if isinstance(date_of_birth, str):
+            date_of_birth = datetime.strptime(date_of_birth, "%Y-%m-%d").date()
+
         customer = Customer(
             full_name=full_name,
             phone_number=phone_number,
@@ -286,7 +294,7 @@ def customer_token(
     customer = create_customer()
     with app.app_context():
         access_token = create_access_token(
-            identity=customer.id
+            identity=str(customer.id)
         )
     return customer, access_token
 

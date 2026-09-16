@@ -1,6 +1,7 @@
 from bank.model.users_model.customer import Customer
 from bank.repository.user_repository.customer_repo import CustomerRepository
 from flask_jwt_extended import create_access_token
+from datetime import datetime
 
 class Customer_Service:
 
@@ -17,6 +18,9 @@ class Customer_Service:
         zip_code = data.get("zip_code")
         username = data.get("username")
         password = data.get("password")
+
+        if isinstance(date_of_birth, str):
+            date_of_birth = datetime.strptime(date_of_birth, "%Y-%m-%d").date()
 
         existing_customer = CustomerRepository.get_by_username(username)
         if existing_customer:

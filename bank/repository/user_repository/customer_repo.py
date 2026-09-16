@@ -13,7 +13,7 @@ class CustomerRepository:
 
         return Customer.query.filter_by(
             username = username
-        )
+        ).first()
 
     @staticmethod
     def get_customers():
@@ -22,7 +22,7 @@ class CustomerRepository:
     @staticmethod
     def get_customer_by_id(customer_id):
 
-        db.session.get(
+        return db.session.get(
             Customer,
             customer_id
         )

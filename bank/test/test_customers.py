@@ -1,32 +1,34 @@
 from bank.test.conftest import auth_headers
 
-REGISTER_URL = '/api/employee/register'
-LOGIN_URI = '/api/employee/login'
-VIEW_EMPLOYEES = '/api/employee/view_profile'
-
-def view_employee_url(employee_id):
-    return f"/api/employee/view_my_profile/{employee_id}"
-
-def update_employee_url(employee_id):
-    return f'/api/employee/upate/my_profile/{employee_id}'
-
-def delete_employee_url(employee_id):
-    return f'/api/employee/delete/my_profile/{employee_id}'
+REGISTER_URL = "/api/customer/register"
+LOGIN_URL = "/api/customer/login"
+VIEW_CUSTOMERS = "/api/customer/profile"
 
 
-class TestEmployeeRegister:
+def view_customer_url(customer_id):
+    return f"/api/customer/my_profile/{customer_id}"
+
+
+def update_customer_url(customer_id):
+    return f"/api/customer/update/my_profile/{customer_id}"
+
+
+def delete_customer_url(customer_id):
+    return f"/api/customer/delete/my_profile/{customer_id}"
+
+
+class TestCustomerRegister:
 
     def test_register(self, client):
         response = client.post(
             REGISTER_URL,
             json={
-                "full_name": "test employee",
+                "full_name": "test customer",
                 "phone_number": 1234567891,
-                "email": "testemployee005@gmail.com",
+                "email": "testcustomer005@gmail.com",
                 "password": "pasw123456",
                 "date_of_birth": "2000-05-15",
-                "username": "test_employee00192",
-                "role": "cashier",
+                "username": "test_customer00192",
                 "address": "near park golden st.1/23",
                 "state": "New York",
                 "country": "usa",
@@ -34,19 +36,19 @@ class TestEmployeeRegister:
             },
         )
         assert response.status_code == 201
-        assert response.get_json()["Message"] == "Employee Created successfull!"
+        assert response.get_json()["Message"] == "User create successfull!"
 
-    def test_register_duplicate_employee(self, client, create_employee):
-        create_employee(username="duplicate_employee")
+    def test_register_duplicate_customer(self, client, create_customer):
+        create_customer(username="duplicate_customer")
         response = client.post(
             REGISTER_URL,
             json={
-                "full_name": "Duplicate Employee",
+                "full_name": "Duplicate Customer",
                 "phone_number": 1234567892,
-                "email": "duplicateemployee@gmail.com",
+                "email": "duplicatecustomer@gmail.com",
                 "password": "pasw123456",
                 "date_of_birth": "2000-05-15",
-                "username": "duplicate_employee",
+                "username": "duplicate_customer",
                 "address": "near park golden st.1/23",
                 "state": "New York",
                 "country": "usa",
@@ -54,159 +56,115 @@ class TestEmployeeRegister:
             },
         )
         assert response.status_code == 400
-        assert response.get_json()["Message"] == "EMPLOYEE ALREADY EXIST"
+        assert response.get_json()["Message"] == "USER ALREADY EXIST"
 
 
-class TestEmployeeLogin:
+class TestCustomerLogin:
 
-    def test_login(self, client, create_employee):
-        create_employee(username="login_employee123", password="pasw123456")
+    def test_login(self, client, create_customer):
+        create_customer(username="login_customer", password="pasw123456")
         response = client.post(
-            LOGIN_URI,
-            json={
-                "username": "login_employee123",
-                "password": "pasw123456",
-            },
+            LOGIN_URL,
+            json={"username": "login_customer", "password": "pasw123456"},
         )
         assert response.status_code == 200
-        body = response.get_json()
-        assert body["Message"] == "Login Successfull"
-        assert body["Bearer"]
+        assert response.get_json()["Bearer"]
 
-    def test_login_wrong_password(self, client, create_employee):
-        create_employee(username="wrong_employee", password="pasw12345")
+    def test_login_wrong_password(self, client, create_customer):
+        create_customer(username="wrong_customer", password="pasw12345")
         response = client.post(
-            LOGIN_URI,
-            json={
-                "username": "wrong_employee",
-                "password": "wrongpassword",
-            },
+            LOGIN_URL,
+            json={"username": "wrong_customer", "password": "wrongpassword"},
         )
-        assert response.status_code == 401
+        assert response.status_code == 400
 
     def test_login_wrong_username(self, client):
         response = client.post(
-            LOGIN_URI,
-            json={
-                "username": "wrongusername",
-                "password": "notsamepassword",
-            },
+            LOGIN_URL,
+            json={"username": "wrongusername", "password": "notsamepassword"},
         )
+        assert response.status_code == 400
+
+
+class TestCustomerProfile:
+
+    def test_customer_profile_requires_authentication(self, client):
+        response = client.get(VIEW_CUSTOMERS)
         assert response.status_code == 401
 
-
-class TestEmployeeProfile:
-
-    def test_employee_profile(self, client):
-        response = client.get(VIEW_EMPLOYEES)
-        assert response.status_code == 401
-
-    def test_plain_employee(self, client, employee_token):
-        employee, token = employee_token
+    def test_plain_customer(self, client, customer_token):
+        customer, token = customer_token
         response = client.get(
-            view_employee_url(employee.id),
-            headers=auth_headers(token),
+            view_customer_url(customer.id), headers=auth_headers(token)
         )
         assert response.status_code == 200
 
-    def test_admin_allowed_(self, client, admin_token, create_employee):
-        admin, token = admin_token
-        target_employee = create_employee(
-            username="target_employee_user",
-            email="target_employee@gmail.com",
-            phone_number=1234567891,
+    def test_admin_allowed(self, client, admin_token, create_customer):
+        _, token = admin_token
+        target = create_customer(
+            username="target_customer_user",
+            email="target_customer@gmail.com",
+            phone_number=1234567893,
         )
         response = client.get(
-            view_employee_url(target_employee.id),
-            headers=auth_headers(token),
+            view_customer_url(target.id), headers=auth_headers(token)
         )
         assert response.status_code == 200
         assert response.get_json()["Message"]
 
 
-class TestUpdateEmployee:
+class TestUpdateCustomer:
 
-    def test_update_employee(self, client, employee_token):
-        employee, token = employee_token
+    def test_update_customer(self, client, customer_token):
+        customer, token = customer_token
         response = client.put(
-            update_employee_url(employee.id),
-            json={"full_name": "Updated employee"},
+            update_customer_url(customer.id),
+            json={"full_name": "Updated customer"},
             headers=auth_headers(token),
         )
         assert response.status_code == 200
-        assert response.get_json()["Message"] == "Employee Update succcessfull!"
+        assert response.get_json()["Message"] == "customer update successfull!"
 
-    def test_update_role_access(self, client, employee_token, create_employee):
-        employee, token = employee_token
-        other = create_employee(username="other_employee")
-
+    def test_update_role_access(self, client, customer_token, create_customer):
+        _, token = customer_token
+        other = create_customer(username="other_customer")
         response = client.put(
-            update_employee_url(other.id),
+            update_customer_url(other.id),
             json={"full_name": "New name"},
             headers=auth_headers(token),
         )
         assert response.status_code == 403
 
-    def test_update_employee_target(self, client, employee_token, create_employee, db):
-        employee, token = employee_token
-        target = create_employee(
-            username="target_employee",
-            email="target_employee@gmail.com",
-            phone_number=1234567893,
-        )
-
+    def test_update_customer_not_found(self, client, customer_token):
+        _, token = customer_token
         response = client.put(
-            update_employee_url(target.id),
-            json={"full_name": "Updated by Admin"},
-            headers=auth_headers(token),
-        )
-
-        assert response.status_code == 403
-
-        db.session.refresh(target)
-        assert target.full_name == "test employee"
-
-    def test_update_employee_not_found(self, client, employee_token):
-        employee, token = employee_token
-
-        response = client.put(
-            update_employee_url(999),
-            json={"full_name": "Non-existent employee"},
-            headers=auth_headers(token),
-        )
-
-        assert response.status_code == 404
-
-
-class TestDeleteEmployee:
-
-    def test_delete_other_denied(self, client, employee_token, create_employee):
-        employee, token = employee_token
-        other = create_employee(username="other_employee_delete")
-        response = client.delete(
-            delete_employee_url(other.id),
-            headers=auth_headers(token),
-        )
-        assert response.status_code == 403
-
-    def test_employee_delete(self, client, employee_token):
-        employee, token = employee_token
-        response = client.delete(
-            delete_employee_url(99999999),
+            update_customer_url(999),
+            json={"full_name": "Non-existent customer"},
             headers=auth_headers(token),
         )
         assert response.status_code == 404
 
 
-    def test_manager_delete(
-        self,
-        client,
-        manager_token
-    ):
-        manager, token = manager_token
-        response = client.delete(
-            delete_employee_url(99999999),
-            headers=auth_headers(token)
-        )
+class TestDeleteCustomer:
 
+    def test_delete_other_denied(self, client, customer_token, create_customer):
+        _, token = customer_token
+        other = create_customer(username="other_customer_delete")
+        response = client.put(
+            delete_customer_url(other.id), headers=auth_headers(token)
+        )
+        assert response.status_code == 403
+
+    def test_customer_delete_not_found(self, client, customer_token):
+        _, token = customer_token
+        response = client.put(
+            delete_customer_url(99999999), headers=auth_headers(token)
+        )
+        assert response.status_code == 404
+
+    def test_manager_delete_not_found(self, client, manager_token):
+        _, token = manager_token
+        response = client.put(
+            delete_customer_url(99999999), headers=auth_headers(token)
+        )
         assert response.status_code == 404
