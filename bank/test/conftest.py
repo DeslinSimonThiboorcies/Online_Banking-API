@@ -148,9 +148,9 @@ def create_employee(db):
 
     full_name = "test employee",
     phone_number = int(1234567890),
-    email = "test_employee@gmail.com",
+    email = None,
     date_of_birth = "1990-01-01",
-    username = "test_employee00192",
+    username = None,
     role = "employee",
     address = "near park golden st.1/23",
     state = "new york",
@@ -158,11 +158,16 @@ def create_employee(db):
     zip_code = int(10001),
     password = "test_password"
     ):
+        unique = uuid.uuid4().hex[:8]
+        email = email or f"employee_{unique}@gmail.com"
+        username = username or f"test_employee_{unique}"
+        phone_number = phone_number or int(f"1{uuid.uuid4().int % 1_000_000_000:09d}")
+
         employee = Employee(
             full_name=full_name,
             phone_number=phone_number,
             email=email,
-            date_of_birth=date_of_birth,
+            date_of_birth=datetime.strptime(date_of_birth, "%Y-%m-%d").date(),
             username=username,
             role=role,
             address=address,
@@ -260,7 +265,8 @@ def employee_token(
     employee = create_employee()
     with app.app_context():
         access_token = create_access_token(
-            identity=employee.id
+            identity=str(employee.id),
+            additional_claims={"role": employee.role}
         )
     return employee, access_token
 

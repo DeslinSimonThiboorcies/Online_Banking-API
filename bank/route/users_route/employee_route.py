@@ -48,16 +48,17 @@ def login():
     except ValueError as e:
         return jsonify({
             "Message"  : str(e)
-        }), 400
+        }), 401
 
     return jsonify({
-        "Bearer" : token
-    }), 201
+        "Message": "Login Successfull",
+        "Bearer": token
+    }), 200
 
 #View all profile:
 @employee_bp.route("/employee/view_profile", methods = ["GET"])
-@employee_admin_required
 @jwt_required()
+@employee_admin_required
 def all_profiles():
 
     employee = EmployeeServices.view_all_employee()

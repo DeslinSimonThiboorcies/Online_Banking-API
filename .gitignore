@@ -48,6 +48,4 @@ Thumbs.db
 
 # --- Logs ---
 *.log
-
-delete_reason.txt
-index.txt
+employee_remaining_error.txt

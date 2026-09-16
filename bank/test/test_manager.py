@@ -1,4 +1,3 @@
-from bank.model.users_model import manager
 from bank.test.conftest import auth_headers
 
 REGISTER_URL = '/api/manager/register'

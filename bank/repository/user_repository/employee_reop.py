@@ -11,8 +11,8 @@ class EmployeeRepository:
     @staticmethod
     def get_by_username(username):
         return Employee.query.filter_by(
-            username = username
-        )
+            username=username
+        ).first()
 
     @staticmethod
     def get_employees():
@@ -20,10 +20,11 @@ class EmployeeRepository:
 
     @staticmethod
     def get_employee_by_id(employee_id):
-        db.session.get(
+        return db.session.get(
             Employee,
             employee_id
         )
+
     @staticmethod
     def update_employee():
         db.session.commit()

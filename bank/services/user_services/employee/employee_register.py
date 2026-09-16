@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from bank.model.users_model.employee import Employee
 from bank.repository.user_repository.employee_reop import EmployeeRepository
 from flask_jwt_extended import create_access_token
@@ -21,27 +23,28 @@ class EmployeeRegisterServices:
 
         existing_emplyee = EmployeeRepository.get_by_username(username)
         if existing_emplyee:
-            raise ValueError(
-                "EMPLOYEE ALREADY EXIST"
-        )
+            raise ValueError("EMPLOYEE ALREADY EXIST")
+
+        if date_of_birth:
+            date_of_birth = datetime.strptime(date_of_birth, "%Y-%m-%d").date()
 
         employee = Employee(
             full_name=full_name,
             phone_number=phone_number,
             email=email,
-            date_of_birth = date_of_birth,
+            date_of_birth=date_of_birth,
             address=address,
-            state = state,
-            country = country,
-            zip_code = zip_code,
-            role = role,
-            username=username
+            state=state,
+            country=country,
+            zip_code=zip_code,
+            role=role,
+            username=username,
         )
 
         employee.employee_password(password)
         EmployeeRepository.create_employee(employee)
         return employee
-    
+
     @staticmethod
     def login(data):
 
@@ -50,16 +53,13 @@ class EmployeeRegisterServices:
 
         employee = EmployeeRepository.get_by_username(username)
         if not employee:
-            raise ValueError(
-                "employee not found!"
-            )
+            raise ValueError("employee not found!")
 
         if not employee.check_employee_password(password):
-            raise ValueError(
-                "Password or Email Invalid"
-            )
+            raise ValueError("Password or Email Invalid")
 
         token = create_access_token(
-            identity=str(employee.id)
+            identity=str(employee.id),
+            additional_claims={"role": employee.role}
         )
         return token
