@@ -147,7 +147,7 @@ def create_employee(db):
     def register_employee(
 
     full_name = "test employee",
-    phone_number = int(1234567890),
+    phone_number = None,
     email = None,
     date_of_birth = "1990-01-01",
     username = None,

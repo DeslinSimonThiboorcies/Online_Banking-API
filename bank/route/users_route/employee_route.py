@@ -132,13 +132,19 @@ def my_profile(id):
 def update(id):
 
     employee_id = int(get_jwt_identity())
-    employee = EmployeeServices.view_employee(employee_id)
-    if not employee:
+    current_employee = EmployeeServices.view_employee(employee_id)
+    if not current_employee:
         return jsonify({
-            "Employee not found!"
+            "Message": "Employee not found!"
         }), 404
 
-    if employee.role not in ["admin", "manager"] and employee.id != id:
+    target_employee = EmployeeServices.view_employee(id)
+    if not target_employee:
+        return jsonify({
+            "Message": "Employee not found!"
+        }), 404
+
+    if current_employee.role not in ["admin", "manager"] and current_employee.id != id:
         return jsonify({
             "MESSAGE": "ACCESS DENIED CONTACT ADMIN OR MANAGER"
         }), 403
@@ -146,7 +152,7 @@ def update(id):
     data = request.get_json(silent=True)
 
     try:
-        EmployeeServices.update(employee, data)
+        EmployeeServices.update(target_employee, data)
 
     except ValueError as e:
         return jsonify({
@@ -163,25 +169,31 @@ def update(id):
 def delete(id):
 
     employee_id = int(get_jwt_identity())
-    employee = EmployeeServices.view_employee(employee_id)
-    if not employee:
+    current_employee = EmployeeServices.view_employee(employee_id)
+    if not current_employee:
         return jsonify({
-            "Employee not found!"
+            "Message": "Employee not found!"
         }), 404
-    
-    if employee.role not in ["admin", "manager"] and employee.id != id:
+
+    target_employee = EmployeeServices.view_employee(id)
+    if not target_employee:
+        return jsonify({
+            "Message": "Employee not found!"
+        }), 404
+
+    if current_employee.role not in ["admin", "manager"] and current_employee.id != id:
         return jsonify({
             "MESSAGE": "ACCESS DENIED CONTACT ADMIN OR MANAGER"
         }), 403
-    
+
     try:
-        EmployeeServices.delete(employee)
+        EmployeeServices.delete(target_employee)
 
     except ValueError as e:
         return jsonify({
             "Message" : str(e)
         }), 400
-    
+
     return jsonify({
         "Message" : "Employee Update succcessfull!"
     }), 200
