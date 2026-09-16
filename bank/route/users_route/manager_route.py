@@ -132,20 +132,26 @@ def profile(id):
 @jwt_required()
 def update(id):
 
-    manager_id = int(get_jwt_identity())
-    current_manager = MangerService.view_manager(manager_id)
-    if not current_manager:
-        return jsonify({
-            "Message" : "Manager not found!"
-        }), 404
-
     target_manager = MangerService.view_manager(id)
     if not target_manager:
         return jsonify({
             "Message" : "Manager not found!"
         }), 404
 
-    if current_manager.role != "admin" and current_manager.id != id:
+    claims = get_jwt()
+    if claims.get("role") != "admin":
+        manager_id = int(get_jwt_identity())
+        current_manager = MangerService.view_manager(manager_id)
+        if not current_manager:
+            return jsonify({
+                "Message" : "Manager not found!"
+            }), 404
+        if current_manager.id != id:
+            return jsonify({
+                "Message" : "Access Denied!"
+            }), 403
+
+    if claims.get("role") != "admin" and manager_id != id:
         return jsonify({
             "Message" : "Access Denied!"
         }), 403
@@ -173,20 +179,26 @@ def update(id):
 @jwt_required()
 def delete(id):
 
-    manager_id = int(get_jwt_identity())
-    current_manager = MangerService.view_manager(manager_id)
-    if not current_manager:
-        return jsonify({
-            "Message" : "Manager not found!"
-        }), 404
-
     target_manager = MangerService.view_manager(id)
     if not target_manager:
         return jsonify({
             "Message" : "Manager not found!"
         }), 404
 
-    if current_manager.role != "admin" and current_manager.id != id:
+    claims = get_jwt()
+    if claims.get("role") != "admin":
+        manager_id = int(get_jwt_identity())
+        current_manager = MangerService.view_manager(manager_id)
+        if not current_manager:
+            return jsonify({
+                "Message" : "Manager not found!"
+            }), 404
+        if current_manager.id != id:
+            return jsonify({
+                "Message" : "Access Denied!"
+            }), 403
+
+    if claims.get("role") != "admin" and manager_id != id:
         return jsonify({
             "Message" : "Access Denied!"
         }), 403

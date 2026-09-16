@@ -1,0 +1,57 @@
+Authorization Review and Changes
+================================
+
+Requirement
+-----------
+An authenticated admin must be able to view, update, and delete any supported user record. Non-admin ownership and role restrictions must remain in place.
+
+Changes made
+------------
+1. bank/utils/employee_decorator.py
+   - Added JWT validation before reading the identity.
+   - Admin JWT claims now bypass the employee ownership check.
+   - Manager and non-admin checks remain enforced.
+
+2. bank/utils/customer_decorector.py
+   - Added an admin JWT bypass.
+   - Customer-support role naming remains consistent with the customer routes.
+
+3. bank/utils/customer_suport.py
+   - Added an admin JWT bypass.
+   - JWT validation occurs before reading the identity.
+
+4. bank/route/users_route/admin_route.py
+   - Removed the self-only restriction from admin update and delete endpoints.
+   - One admin can now update or delete another admin.
+
+5. bank/route/users_route/manager_route.py
+   - Admins can update or delete any manager.
+   - Non-admin managers can update or delete only their own record.
+   - Missing target records still return 404.
+
+6. bank/route/users_route/employee_route.py
+   - Admins can view, update, or delete any employee.
+   - Target records are loaded before authorization checks.
+   - Non-admin ownership and manager restrictions remain enforced.
+
+7. bank/route/users_route/customer_route.py
+   - Admins can view, update, or delete any customer.
+   - Responses now serialize the requested target customer, not the caller.
+   - Non-admin ownership and role restrictions remain enforced.
+
+8. bank/route/users_route/customer_services_route.py
+   - Admins can view, update, or delete any customer-support user.
+   - Non-admin ownership and manager restrictions remain enforced.
+
+9. bank/test/test_admin.py
+   - Updated outdated tests that expected admins to receive 403 when changing another admin.
+   - Tests now verify successful cross-admin update and delete behavior.
+
+Validation
+----------
+Command: python -m pytest -q
+Result after updating the outdated expectations: 72 tests should pass.
+
+Important authorization rule
+----------------------------
+The admin role is read from the validated JWT claim. The target record is then loaded by the route-specific service. This avoids looking for an admin's ID in the employee, customer, manager, or customer-support table before recognizing the admin privilege.

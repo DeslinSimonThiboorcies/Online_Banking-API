@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from bank.services.user_services.customer.customer_register import Customer_Service
 from bank.services.user_services.customer.customer_services import CustomerServices
 from bank.utils.customer_decorector import customer_admin_required
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity, get_jwt, jwt_required
 
 customer_bp = Blueprint(
     "customer",
@@ -94,40 +94,41 @@ def all_profile():
 @jwt_required()
 def profile(id):
 
-    customer_id = int(get_jwt_identity())
-    customer = CustomerServices.view_user(customer_id)
-    if not customer:
+    claims = get_jwt()
+    target_customer = CustomerServices.view_user(id)
+    if not target_customer:
         return jsonify({
             "Messge" : "User not found!"
         }), 404
 
-    if customer.role not in ["admin", "manager", "customer_support"] and customer.id != id:
-        return jsonify({
-            "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
-        }), 403
-
-    target_customer = CustomerServices.view_user(id)
-    if not target_customer:
-        return jsonify({
-            "Message": "Customer not found!"
-        }), 404
+    if claims.get("role") != "admin":
+        customer_id = int(get_jwt_identity())
+        customer = CustomerServices.view_user(customer_id)
+        if not customer:
+            return jsonify({
+                "Messge" : "User not found!"
+            }), 404
+        if customer.role not in ["admin", "manager", "customer_support"] and customer.id != id:
+            return jsonify({
+                "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
+            }), 403
 
     response = {
-        "id": customer.id,
-        "full_name": customer.full_name,
-        "phone_number": customer.phone_number,
-        "email": customer.email,
-        "date_of_birth": customer.date_of_birth,
-        "address": customer.address,
-        "state": customer.state,
-        "country": customer.country,
-        "zip_code": customer.zip_code,        
-        "role": customer.role,
-        "kyc_status" : customer.kyc_status,
-        "username": customer.username,
-        "is_active" : customer.is_active,
-        "created_at": customer.created_at,
-        "login_at": customer.login_at
+        "id": target_customer.id,
+        "full_name": target_customer.full_name,
+        "phone_number": target_customer.phone_number,
+        "email": target_customer.email,
+        "date_of_birth": target_customer.date_of_birth,
+        "address": target_customer.address,
+        "state": target_customer.state,
+        "country": target_customer.country,
+        "zip_code": target_customer.zip_code,
+        "role": target_customer.role,
+        "kyc_status" : target_customer.kyc_status,
+        "username": target_customer.username,
+        "is_active" : target_customer.is_active,
+        "created_at": target_customer.created_at,
+        "login_at": target_customer.login_at
     }       
 
     return jsonify({
@@ -139,23 +140,21 @@ def profile(id):
 @jwt_required()
 def update(id):
 
-    customer_id = int(get_jwt_identity())
-    customer = CustomerServices.view_user(customer_id)
-    if not customer:
-        return jsonify({
-            "Messge" : "User not found!"            
-        }), 404
-
     target_customer = CustomerServices.view_user(id)
     if not target_customer:
         return jsonify({
             "Message": "Customer not found!"
         }), 404
 
-    if customer.role not in ["admin", "manager", "customer_support"] and customer.id != id:
-        return jsonify({
-            "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
-        }), 403
+    if get_jwt().get("role") != "admin":
+        customer_id = int(get_jwt_identity())
+        customer = CustomerServices.view_user(customer_id)
+        if not customer:
+            return jsonify({"Messge": "User not found!"}), 404
+        if customer.role not in ["admin", "manager", "customer_support"] and customer.id != id:
+            return jsonify({
+                "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
+            }), 403
 
     data = request.get_json(silent= True)
 
@@ -176,23 +175,21 @@ def update(id):
 @jwt_required()
 def delete_profile(id):
 
-    customer_id = int(get_jwt_identity())
-    customer = CustomerServices.view_user(customer_id)
-    if not customer:
-        return jsonify({
-            "Messge" : "User not found!"            
-        }), 404
-
     target_customer = CustomerServices.view_user(id)
     if not target_customer:
         return jsonify({
             "Message": "Customer not found!"
         }), 404
 
-    if customer.role not in ["admin", "manager", "customer_support"] and customer.id != id:
-        return jsonify({
-            "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
-        }), 403
+    if get_jwt().get("role") != "admin":
+        customer_id = int(get_jwt_identity())
+        customer = CustomerServices.view_user(customer_id)
+        if not customer:
+            return jsonify({"Messge": "User not found!"}), 404
+        if customer.role not in ["admin", "manager", "customer_support"] and customer.id != id:
+            return jsonify({
+                "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
+            }), 403
 
     try:
         CustomerServices.delete(target_customer)

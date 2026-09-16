@@ -188,7 +188,7 @@ class TestUpdateAdmin:
             json={"full_name": "testusername"},
             headers=auth_headers(token)
         )
-        assert response.status_code == 403
+        assert response.status_code == 200
 
     def test_update_admin_target(
         self,
@@ -210,10 +210,10 @@ class TestUpdateAdmin:
             headers=auth_headers(token)
         )
 
-        assert response.status_code == 403
+        assert response.status_code == 200
 
         db.session.refresh(target)
-        assert target.full_name == "test admin"
+        assert target.full_name == "Updated by Admin"
 
     def test_update_admin_not_found(
         self,
@@ -249,7 +249,7 @@ class TestDeleteAdmin:
             delete_admin_url(other.id),
             headers=auth_headers(token)
         )
-        assert response.status_code == 403
+        assert response.status_code == 200
 
     def test_admin_delete(
         self,

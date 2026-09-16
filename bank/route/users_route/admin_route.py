@@ -94,12 +94,6 @@ def update_profile(admin_id):
             "message": "Admin not found!"
         }), 404
 
-    caller_id = int(get_jwt_identity())
-    if caller_id != admin_id:
-        return jsonify({
-            "message": "You can only update your own profile."
-        }), 403
-
     data = request.get_json(silent=True)
     if not data:
         return jsonify({
@@ -128,12 +122,6 @@ def remove_admin(admin_id):
         return jsonify({
             "message": "Admin not found!"
         }), 404
-
-    caller_id = int(get_jwt_identity())
-    if caller_id != admin_id:
-        return jsonify({
-            "message": "You can only delete your own account."
-        }), 403
 
     AdminServices.delete(admin)
     return jsonify({

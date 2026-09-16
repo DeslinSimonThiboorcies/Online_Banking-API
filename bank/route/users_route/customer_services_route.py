@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from bank.services.user_services.customer_suppot.customer_support_register import CustomerRegisterServices
 from bank.services.user_services.customer_suppot.customer_support_service import CustomerSupportServices
 from bank.utils.customer_suport import admin_required
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity, get_jwt, jwt_required
 
 c_s_bp = Blueprint(
     "customer_support",
@@ -93,17 +93,23 @@ def all_profile():
 @jwt_required()
 def profile(id):
 
-    customer_helper_id = int(get_jwt_identity())
-    customer_suport = CustomerSupportServices.view_user(customer_helper_id)
-    if not customer_suport:
+    target_user = CustomerSupportServices.view_user(id)
+    if not target_user:
         return jsonify({
             "Messge" : "User not found!"
         }), 404
 
-    if customer_suport.role not in ["admin", "manager"] and customer_suport.id != id:
-        return jsonify({
-            "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
-        }), 403
+    if get_jwt().get("role") != "admin":
+        customer_helper_id = int(get_jwt_identity())
+        customer_suport = CustomerSupportServices.view_user(customer_helper_id)
+        if not customer_suport:
+            return jsonify({"Messge": "User not found!"}), 404
+        if customer_suport.role not in ["admin", "manager"] and customer_suport.id != id:
+            return jsonify({
+                "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
+            }), 403
+
+    customer_suport = target_user
 
     response = {
         "id": customer_suport.id,
@@ -131,23 +137,21 @@ def profile(id):
 @jwt_required()
 def update(id):
 
-    customer_helper_id = int(get_jwt_identity())
-    customer_suport = CustomerSupportServices.view_user(customer_helper_id)
-    if not customer_suport:
-        return jsonify({
-            "Messge" : "User not found!"            
-        }), 404
-
     target_user = CustomerSupportServices.view_user(id)
     if not target_user:
         return jsonify({
             "Messge": "User not found!"
         }), 404
 
-    if customer_suport.role not in ["admin", "manager"] and customer_suport.id != id:
-        return jsonify({
-            "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
-        }), 403
+    if get_jwt().get("role") != "admin":
+        customer_helper_id = int(get_jwt_identity())
+        customer_suport = CustomerSupportServices.view_user(customer_helper_id)
+        if not customer_suport:
+            return jsonify({"Messge": "User not found!"}), 404
+        if customer_suport.role not in ["admin", "manager"] and customer_suport.id != id:
+            return jsonify({
+                "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
+            }), 403
 
     data = request.get_json(silent= True)
 
@@ -168,23 +172,21 @@ def update(id):
 @jwt_required()
 def delete_profile(id):
 
-    customer_helper_id = int(get_jwt_identity())
-    customer_suport = CustomerSupportServices.view_user(customer_helper_id)
-    if not customer_suport:
-        return jsonify({
-            "Messge" : "User not found!"            
-        }), 404
-
     target_user = CustomerSupportServices.view_user(id)
     if not target_user:
         return jsonify({
             "Messge": "User not found!"
         }), 404
     
-    if customer_suport.role not in ["admin", "manager"] and customer_suport.id != id:
-        return jsonify({
-            "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
-        }), 403
+    if get_jwt().get("role") != "admin":
+        customer_helper_id = int(get_jwt_identity())
+        customer_suport = CustomerSupportServices.view_user(customer_helper_id)
+        if not customer_suport:
+            return jsonify({"Messge": "User not found!"}), 404
+        if customer_suport.role not in ["admin", "manager"] and customer_suport.id != id:
+            return jsonify({
+                "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
+            }), 403
 
     try:
         CustomerSupportServices.delete(target_user)

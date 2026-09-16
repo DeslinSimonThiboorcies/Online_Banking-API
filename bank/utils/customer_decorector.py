@@ -1,4 +1,4 @@
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity, get_jwt, jwt_required
 from functools import wraps
 from flask import jsonify
 from bank.repository.user_repository.customer_repo import CustomerRepository
@@ -9,6 +9,9 @@ def customer_admin_required(func):
     @wraps(func)
     @jwt_required()
     def decorator(*args, **kwargs):
+
+        if get_jwt().get("role") == "admin":
+            return func(*args, **kwargs)
 
         customer_id = int(get_jwt_identity())
         current_customer = CustomerRepository.get_customer_by_id(customer_id)

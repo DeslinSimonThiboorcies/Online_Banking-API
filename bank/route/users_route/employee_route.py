@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from bank.services.user_services.employee.employee_register  import EmployeeRegisterServices
 from bank.services.user_services.employee.employee_services import EmployeeServices
 from bank.utils.employee_decorator import employee_admin_required
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity, get_jwt, jwt_required
 
 
 employee_bp = Blueprint(
@@ -94,17 +94,24 @@ def all_profiles():
 @jwt_required()
 def my_profile(id):
 
-    employee_id = int(get_jwt_identity())
-    employee = EmployeeServices.view_employee(employee_id)
+    claims = get_jwt()
+    employee = EmployeeServices.view_employee(id)
     if not employee:
         return jsonify({
             "Employee not found!"
         }), 404
 
-    if employee.role not in ["admin", "manager"] and employee.id != id:
-        return jsonify({
-            "MESSAGE": "ACCESS DENIED CONTACT ADMIN OR MANAGER"
-        }), 403
+    if claims.get("role") != "admin":
+        employee_id = int(get_jwt_identity())
+        current_employee = EmployeeServices.view_employee(employee_id)
+        if not current_employee:
+            return jsonify({
+                "Employee not found!"
+            }), 404
+        if current_employee.role not in ["admin", "manager"] and current_employee.id != id:
+            return jsonify({
+                "MESSAGE": "ACCESS DENIED CONTACT ADMIN OR MANAGER"
+            }), 403
 
     response = {
         "id": employee.id,
@@ -116,10 +123,10 @@ def my_profile(id):
         "state": employee.state,
         "country": employee.country,
         "zip_code": employee.zip_code,
-        "role": employee.role,     
+        "role": employee.role,
         "username": employee.username,
         "created_at": employee.created_at,
-        "login_at": employee.login_at    
+        "login_at": employee.login_at
     }
 
     return jsonify({
@@ -131,23 +138,24 @@ def my_profile(id):
 @jwt_required()
 def update(id):
 
-    employee_id = int(get_jwt_identity())
-    current_employee = EmployeeServices.view_employee(employee_id)
-    if not current_employee:
-        return jsonify({
-            "Message": "Employee not found!"
-        }), 404
-
+    claims = get_jwt()
     target_employee = EmployeeServices.view_employee(id)
     if not target_employee:
         return jsonify({
             "Message": "Employee not found!"
         }), 404
 
-    if current_employee.role not in ["admin", "manager"] and current_employee.id != id:
-        return jsonify({
-            "MESSAGE": "ACCESS DENIED CONTACT ADMIN OR MANAGER"
-        }), 403
+    if claims.get("role") != "admin":
+        employee_id = int(get_jwt_identity())
+        current_employee = EmployeeServices.view_employee(employee_id)
+        if not current_employee:
+            return jsonify({
+                "Message": "Employee not found!"
+            }), 404
+        if current_employee.role not in ["admin", "manager"] and current_employee.id != id:
+            return jsonify({
+                "MESSAGE": "ACCESS DENIED CONTACT ADMIN OR MANAGER"
+            }), 403
 
     data = request.get_json(silent=True)
 
@@ -168,23 +176,24 @@ def update(id):
 @jwt_required()
 def delete(id):
 
-    employee_id = int(get_jwt_identity())
-    current_employee = EmployeeServices.view_employee(employee_id)
-    if not current_employee:
-        return jsonify({
-            "Message": "Employee not found!"
-        }), 404
-
+    claims = get_jwt()
     target_employee = EmployeeServices.view_employee(id)
     if not target_employee:
         return jsonify({
             "Message": "Employee not found!"
         }), 404
 
-    if current_employee.role not in ["admin", "manager"] and current_employee.id != id:
-        return jsonify({
-            "MESSAGE": "ACCESS DENIED CONTACT ADMIN OR MANAGER"
-        }), 403
+    if claims.get("role") != "admin":
+        employee_id = int(get_jwt_identity())
+        current_employee = EmployeeServices.view_employee(employee_id)
+        if not current_employee:
+            return jsonify({
+                "Message": "Employee not found!"
+            }), 404
+        if current_employee.role not in ["admin", "manager"] and current_employee.id != id:
+            return jsonify({
+                "MESSAGE": "ACCESS DENIED CONTACT ADMIN OR MANAGER"
+            }), 403
 
     try:
         EmployeeServices.delete(target_employee)

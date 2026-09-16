@@ -1,4 +1,4 @@
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, get_jwt, jwt_required
 from functools import wraps
 from flask import jsonify
 from bank.repository.user_repository.employee_reop import EmployeeRepository
@@ -6,7 +6,11 @@ from bank.repository.user_repository.employee_reop import EmployeeRepository
 def employee_admin_required(func):
 
     @wraps(func)
+    @jwt_required()
     def decorator(*args, **kwargs):
+
+        if get_jwt().get("role") == "admin":
+            return func(*args, **kwargs)
 
         emloyee_id = int(get_jwt_identity())
         current_employee = EmployeeRepository.get_employee_by_id(emloyee_id)
