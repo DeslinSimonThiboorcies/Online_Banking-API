@@ -39,12 +39,5 @@ def creat_app(config_class = Config):
     app.register_blueprint(
         customer_bp,
         url_prefix = "/api"
-    )
-
-    from bank.route.account_route.bankaccount_route import account_bp
-    app.register_blueprint(
-        account_bp,
-        url_prefix = "/api"
-    )
-    
+    )    
     return app
