@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from bank.model.users_model.customer_support import CustomerSupport
 from bank.repository.user_repository.customer_sup_reop import CustomerSupportRepository
 from flask_jwt_extended import create_access_token
@@ -24,6 +26,9 @@ class CustomerRegisterServices:
             raise ValueError(
                 "USER ALREADY EXIST"
         )
+
+        if date_of_birth:
+            date_of_birth = datetime.strptime(date_of_birth, "%Y-%m-%d").date()
 
         cs = CustomerSupport(
             full_name=full_name,

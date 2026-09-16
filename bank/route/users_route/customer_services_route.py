@@ -55,8 +55,8 @@ def login():
 
 #View all profiles
 @c_s_bp.route("/user/profile", methods = ["GET"])
-@admin_required
 @jwt_required()
+@admin_required
 def all_profile():
 
     user = CustomerSupportServices.view_all_user()
@@ -138,6 +138,12 @@ def update(id):
             "Messge" : "User not found!"            
         }), 404
 
+    target_user = CustomerSupportServices.view_user(id)
+    if not target_user:
+        return jsonify({
+            "Messge": "User not found!"
+        }), 404
+
     if customer_suport.role not in ["admin", "manager"] and customer_suport.id != id:
         return jsonify({
             "MESSAGE": "ACCESS DENIED CONTACT MANAGER OR ADMIN!"
@@ -146,7 +152,7 @@ def update(id):
     data = request.get_json(silent= True)
 
     try:
-        CustomerSupportServices.update(customer_suport , data)
+        CustomerSupportServices.update(target_user, data)
 
     except ValueError as e:
         return jsonify({
@@ -168,6 +174,12 @@ def delete_profile(id):
         return jsonify({
             "Messge" : "User not found!"            
         }), 404
+
+    target_user = CustomerSupportServices.view_user(id)
+    if not target_user:
+        return jsonify({
+            "Messge": "User not found!"
+        }), 404
     
     if customer_suport.role not in ["admin", "manager"] and customer_suport.id != id:
         return jsonify({
@@ -175,7 +187,7 @@ def delete_profile(id):
         }), 403
 
     try:
-        CustomerSupportServices.delete(customer_suport)
+        CustomerSupportServices.delete(target_user)
 
     except ValueError as e:
         return jsonify({

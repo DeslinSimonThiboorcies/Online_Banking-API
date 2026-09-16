@@ -20,7 +20,7 @@ class CustomerSupportRepository:
 
     @staticmethod
     def get_customer_support_by_id(customer_support_id):
-        db.session.get(
+        return db.session.get(
             CustomerSupport,
             customer_support_id
         )

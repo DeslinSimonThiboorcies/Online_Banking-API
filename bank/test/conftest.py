@@ -111,19 +111,26 @@ def create_manager(db):
 @pytest.fixture
 def create_customer_support(db):
     def register_customer_support(
-            
-    full_name = "test customer support",
-    phone_number = int(1234567890),
-    email = "test_customer_support@gmail.com",
-    date_of_birth = "1990-01-01",
-    username = "test_customer_support00192",
-    role = "customer_support",
-    address = "near park golden st.1/23",
-    state = "new york",
-    country = "usa",
-    zip_code = int(10001),
-    password = "test_password"
+        full_name="test customer support",
+        phone_number=None,
+        email=None,
+        date_of_birth="1990-01-01",
+        username=None,
+        role="customer_support",
+        address="near park golden st.1/23",
+        state="new york",
+        country="usa",
+        zip_code=int(10001),
+        password="test_password"
     ):
+        unique = uuid.uuid4().hex[:8]
+        email = email or f"customer_support_{unique}@gmail.com"
+        username = username or f"test_customer_support_{unique}"
+        phone_number = phone_number or int(f"1{uuid.uuid4().int % 1_000_000_000:09d}")
+
+        if date_of_birth:
+            date_of_birth = datetime.strptime(date_of_birth, "%Y-%m-%d").date()
+
         customer_support = CustomerSupport(
             full_name=full_name,
             phone_number=phone_number,
@@ -252,7 +259,7 @@ def customer_support_token(
     customer_support = create_customer_support()
     with app.app_context():
         access_token = create_access_token(
-            identity=customer_support.id
+            identity=str(customer_support.id)
         )
     return customer_support, access_token
 

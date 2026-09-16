@@ -1,4 +1,4 @@
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from functools import wraps
 from flask import jsonify
 from bank.repository.user_repository.customer_sup_reop import CustomerSupportRepository
@@ -6,6 +6,7 @@ from bank.repository.user_repository.customer_sup_reop import CustomerSupportRep
 def admin_required(func):
 
     @wraps(func)
+    @jwt_required()
     def decorator(*args, **kwargs):
 
         customer_suport_id = int(get_jwt_identity())
