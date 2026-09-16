@@ -48,3 +48,6 @@ Thumbs.db
 
 # --- Logs ---
 *.log
+
+delete_reason.txt
+index.txt

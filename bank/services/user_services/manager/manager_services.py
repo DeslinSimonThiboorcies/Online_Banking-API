@@ -15,14 +15,14 @@ class MangerService:
 
         manager.full_name = data.get("full_name", manager.full_name)
         manager.phone_number = data.get("phone_number", manager.phone_number)
-        manager.email = data.get("email",manager.email)
+        manager.email = data.get("email", manager.email)
         manager.date_of_birth = data.get("date_of_birth", manager.date_of_birth)
-        manager.username = data.get("username", manager.username),
+        manager.username = data.get("username", manager.username)
         manager.address = data.get("address", manager.address)
         manager.state = data.get("state", manager.state)
         manager.country = data.get("country", manager.country)
         manager.zip_code = data.get("zip_code", manager.zip_code)
- 
+
         ManagerRepository.update_manager()
         return manager
 

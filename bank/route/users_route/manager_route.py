@@ -133,13 +133,19 @@ def profile(id):
 def update(id):
 
     manager_id = int(get_jwt_identity())
-    manager = MangerService.view_manager(manager_id)
-    if not manager:
+    current_manager = MangerService.view_manager(manager_id)
+    if not current_manager:
         return jsonify({
             "Message" : "Manager not found!"
         }), 404
-    
-    if manager.role != "admin" and manager.id != id:
+
+    target_manager = MangerService.view_manager(id)
+    if not target_manager:
+        return jsonify({
+            "Message" : "Manager not found!"
+        }), 404
+
+    if current_manager.role != "admin" and current_manager.id != id:
         return jsonify({
             "Message" : "Access Denied!"
         }), 403
@@ -151,7 +157,7 @@ def update(id):
         })
 
     try:
-        MangerService.update(manager, data)
+        MangerService.update(target_manager, data)
 
     except ValueError as e:
         return jsonify({
@@ -160,7 +166,7 @@ def update(id):
 
     return jsonify({
         "Message" : "Manager update successfull!"
-    }), 201
+    }), 200
 
 #DELETE
 @manager_bp.route("/manager/delete/<int:id>", methods = ["DELETE"])
@@ -168,19 +174,25 @@ def update(id):
 def delete(id):
 
     manager_id = int(get_jwt_identity())
-    manager = MangerService.view_manager(manager_id)
-    if not manager:
+    current_manager = MangerService.view_manager(manager_id)
+    if not current_manager:
         return jsonify({
             "Message" : "Manager not found!"
         }), 404
 
-    if manager.role != "admin" and manager.id != id:
+    target_manager = MangerService.view_manager(id)
+    if not target_manager:
+        return jsonify({
+            "Message" : "Manager not found!"
+        }), 404
+
+    if current_manager.role != "admin" and current_manager.id != id:
         return jsonify({
             "Message" : "Access Denied!"
         }), 403
 
     try:
-        MangerService.delete(manager)
+        MangerService.delete(target_manager)
 
     except ValueError as e:
         return jsonify({
@@ -189,4 +201,4 @@ def delete(id):
 
     return jsonify({
         "Message" : "Manager delete successfull!"
-    }), 201
+    }), 200
